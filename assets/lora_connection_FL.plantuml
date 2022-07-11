@@ -1,0 +1,41 @@
+/'
+Module:	lora_connection_FL.plantuml
+
+Function:
+        PlantUML flow chart for LoRa connection between two Catena boards.
+
+Copyright:
+        This file copyright (C) 2022 by
+        MCCI Corporation
+        3520 Krums Corners Road
+        Ithaca, NY 14850
+        An unpublished work. All rights reserved.
+        This file is proprietary information, and may not be disclosedg or
+        copied without the prior permission of MCCI Corporation.
+
+Author:
+        Pranau R, MCCI Corporation    July 2022
+'/
+
+@startuml
+
+start
+
+<style>
+title {
+    FontSize 20
+}
+</style>
+
+title LoRa Connection between two Catena Boards(Process Flow)
+
+: Initialize two catena boards (one to Transmit and another to Receive );
+: Initialize the on-board sensors of data transfer catena board;
+: Initialize the radio module (LoRaWAN);
+
+repeat: Transmit the sensor measurements from transfer board to receiver board;
+    : Read the measurements in receiver board;
+
+repeat while (Display the sensor measurements in Serial Monitor)
+
+@enduml
