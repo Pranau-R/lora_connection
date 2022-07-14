@@ -18,3 +18,126 @@ Author:
         Pranau R, MCCI Corporation   July 2022
 */
 
+#include <Catena.h>
+#include <Catena_Si1133.h>
+#include <Arduino_LoRaWAN.h>
+
+/****************************************************************************\
+|
+|   Manifest constants & typedefs.
+|
+\****************************************************************************/
+
+using namespace McciCatena;
+
+/****************************************************************************\
+|
+|	VARIABLES
+|
+\****************************************************************************/
+
+// the primary object
+Catena gCatena;
+
+// the LoRaWAN backhaul.  Note that we use the
+// Catena version so it can provide hardware-specific
+// information to the base class.
+//
+Catena::LoRaWAN gLoRaWAN;
+
+//   The LUX sensor
+Catena_Si1133 gSi1133;
+bool fLight;
+
+/****************************************************************************\
+|
+|   Code.
+|
+\****************************************************************************/
+
+/*
+Name: setup()
+
+Function:
+        Initializes Si1133 Light Sensor
+
+Definition:
+        void setup (
+                void)
+
+Returns:
+        Functions returning type void: nothing.
+*/
+
+void setup()
+    {
+    Serial.begin(115200);
+
+    while (!Serial);
+    gCatena.SafePrintf("Si1133 LoRa Connectivity Test!\n");
+    gCatena.SafePrintf("This is Sender!\n");
+
+    char sRegion[16];
+    gCatena.SafePrintf("Target network: %s / %s\n",
+        gLoRaWAN.GetNetworkName(),
+        gLoRaWAN.GetRegionString(sRegion, sizeof(sRegion))
+        );
+
+    // set up LoRaWAN
+    gCatena.SafePrintf("LoRaWAN init: ");
+    if (!gLoRaWAN.begin(&gCatena))
+        {
+        gCatena.SafePrintf("failed\n");
+        }
+    else
+        {
+        gCatena.SafePrintf("succeeded\n");
+        }
+
+    gCatena.registerObject(&gLoRaWAN);
+
+    if (gSi1133.begin())
+        {
+        gSi1133.configure(0, CATENA_SI1133_MODE_SmallIR);
+        gSi1133.configure(1, CATENA_SI1133_MODE_White);
+        gSi1133.configure(2, CATENA_SI1133_MODE_UV);
+        }
+    else
+        {
+        gCatena.SafePrintf("No Si1133 found: check hardware\n");
+        }
+    }
+
+/*
+Name:   loop()
+
+Function:
+        Performs different light calculation such as
+        Infrared Light, White Light, UV Light.
+
+Definition:
+        void loop (void);
+
+Returns:
+        Functions returning type void: nothing.
+*/
+
+void loop()
+    {
+    /* Get a new sensor event */
+    uint16_t data[3];
+
+    while (! gSi1133.isOneTimeReady())
+        {
+        yield();
+        }
+
+    gSi1133.readMultiChannelData(data, 3);
+    gSi1133.stop();
+    gCatena.SafePrintf(
+        "Si1133:  %u IR, %u White, %u UV\n",
+        data[0],
+        data[1],
+        data[2]
+        );
+    }
