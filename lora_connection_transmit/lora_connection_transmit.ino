@@ -45,9 +45,17 @@ Catena gCatena;
 //
 Catena::LoRaWAN gLoRaWAN;
 
+// declare the callback function.
+Arduino_LoRaWAN::SendBufferCbFn uplinkDone;
+
+bool gfSuccess;
+bool gfTxStarted;
+bool gfTxDone;
+
+uint8_t uplinkBuffer[] = { 0xCA, 0xFE, 0xBA, 0xBE };
+
 //   The LUX sensor
 Catena_Si1133 gSi1133;
-bool fLight;
 
 /****************************************************************************\
 |
@@ -63,7 +71,8 @@ Function:
 
 Definition:
         void setup (
-                void)
+            void
+            )
 
 Returns:
         Functions returning type void: nothing.
@@ -96,6 +105,23 @@ void setup()
 
     gCatena.registerObject(&gLoRaWAN);
 
+    if (! gLoRaWAN.IsProvisioned())
+        {
+        gCatena.SafePrintf("LoRaWAN not provisioned yet. Use the commands to set it up.\n");
+        }
+    else
+        {
+        // send a confirmed uplink
+        if (gLoRaWAN.SendBuffer(uplinkBuffer, sizeof(uplinkBuffer), uplinkDone, nullptr, true, /* port */ 16))
+            {
+            gfTxStarted = true;
+            }
+        else
+            {
+            gCatena.SafePrintf("SendBuffer failed!\n");
+            }
+        }
+
     if (gSi1133.begin())
         {
         gSi1133.configure(0, CATENA_SI1133_MODE_SmallIR);
@@ -116,7 +142,9 @@ Function:
         Infrared Light, White Light, UV Light.
 
 Definition:
-        void loop (void);
+        void loop (
+            void
+            );
 
 Returns:
         Functions returning type void: nothing.
@@ -140,4 +168,23 @@ void loop()
         data[1],
         data[2]
         );
+
+    if (gfTxStarted && gfTxDone)
+        {
+        gfTxStarted = false;
+        if (gfSuccess)
+            {
+            gCatena.SafePrintf("Transmit succeeded.\n");
+            }
+        else
+            {
+            gCatena.SafePrintf("Message uplink failed!\n");
+            }
+        }
+    }
+
+void uplinkDone(void *pCtx, bool fSuccess)
+    {
+    gfTxDone = true;
+    gfSuccess = fSuccess;
     }
