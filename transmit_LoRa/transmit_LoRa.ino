@@ -22,6 +22,10 @@ Author:
 #include <Catena_Si1133.h>
 #include <LoRa.h>
 
+//define the pins used by the transceiver module
+#define ss D7
+#define rst D8
+#define dio0 D25
 
 /****************************************************************************\
 |
@@ -40,10 +44,13 @@ using namespace McciCatena;
 // the primary object
 Catena gCatena;
 
-//   The LUX sensor
-Catena_Si1133 gSi1133;
+// LoRa object
+//LoRaClass LoRa;
 
-int counter = 0;
+//   The LUX sensor
+//Catena_Si1133 gSi1133;
+
+uint8_t uplinkBuffer[] = { 0xCA, 0xFE, 0xBA, 0xBE };
 
 /****************************************************************************\
 |
@@ -55,7 +62,7 @@ int counter = 0;
 Name: setup()
 
 Function:
-        Initializes Si1133 Light Sensor.
+        Initializes Si1133 Light Sensor and LoRa for Transmission.
 
 Definition:
         void setup (
@@ -68,28 +75,23 @@ Returns:
 
 void setup()
     {
+    gCatena.begin();
     Serial.begin(115200);
 
     while (!Serial);
-    gCatena.SafePrintf("Si1133 LoRa Connectivity Test!\n");
-    gCatena.SafePrintf("This is Sender!\n");
+    //gCatena.SafePrintf("Si1133 LoRa Connectivity Test!\n");
+    gCatena.SafePrintf("This is Lora Sender!\n");
 
-    if (gSi1133.begin())
-        {
-        gSi1133.configure(0, CATENA_SI1133_MODE_SmallIR);
-        gSi1133.configure(1, CATENA_SI1133_MODE_White);
-        gSi1133.configure(2, CATENA_SI1133_MODE_UV);
-        }
-    else
-        {
-        gCatena.SafePrintf("No Si1133 found: check hardware\n");
-        }
+    //setup LoRa transceiver module
+    LoRa.setPins(ss, rst, dio0);
 
-    if (!LoRa.begin(868E6))
+    if (!LoRa.begin(866E6))
         {
-        gCatena.SafePrintf("Starting LoRa failed!");
+        gCatena.SafePrintf("Starting LoRa failed!\n");
         while (1);
         }
+
+    gCatena.SafePrintf("LoRa Initializing OK!\n");
     LoRa.setSyncWord(0xF3);
     LoRa.setTxPower(20);
     }
@@ -112,38 +114,16 @@ Returns:
 
 void loop()
     {
-    /* Get a new sensor event */
-    uint16_t data[3];
-
-    while (! gSi1133.isOneTimeReady())
-        {
-        yield();
-        }
-
-    gSi1133.readMultiChannelData(data, 3);
-    gSi1133.stop();
-
-    Serial.print("Sending packet: ");
-    Serial.println(counter);
-
     // send packet
     LoRa.beginPacket();
-    LoRa.print("Data:");
-    LoRa.print(counter);
 
-    LoRa.print("Si1133: ");
-    LoRa.print(data[0]);
-    LoRa.print(" IR, ");
-
-    LoRa.print(data[1]);
-    LoRa.print(" White, ");
-
-    LoRa.print(data[2]);
-    LoRa.println(" UV, ");
+    LoRa.print(uplinkBuffer);
 
     LoRa.endPacket();
 
-    counter++;
+    gCatena.SafePrintf("Transfer Done!\n");
+    //LoRa.onTxDone(onTxDone);
+    //counter++;
 
     delay(5000);
     }
