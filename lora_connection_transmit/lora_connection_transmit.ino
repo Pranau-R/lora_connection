@@ -19,7 +19,7 @@ Author:
 */
 
 #include <Catena.h>
-#include <Catena_Si1133.h>
+//#include <Catena_Si1133.h>
 #include <Arduino_LoRaWAN.h>
 
 /****************************************************************************\
@@ -55,7 +55,7 @@ bool gfTxDone;
 uint8_t uplinkBuffer[] = { 0xCA, 0xFE, 0xBA, 0xBE };
 
 //   The LUX sensor
-Catena_Si1133 gSi1133;
+//Catena_Si1133 gSi1133;
 
 /****************************************************************************\
 |
@@ -83,7 +83,7 @@ void setup()
     Serial.begin(115200);
 
     while (!Serial);
-    gCatena.SafePrintf("Si1133 LoRa Connectivity Test!\n");
+    //gCatena.SafePrintf("Si1133 LoRa Connectivity Test!\n");
     gCatena.SafePrintf("This is Sender!\n");
 
     char sRegion[16];
@@ -122,7 +122,7 @@ void setup()
             }
         }
 
-    if (gSi1133.begin())
+    /*if (gSi1133.begin())
         {
         gSi1133.configure(0, CATENA_SI1133_MODE_SmallIR);
         gSi1133.configure(1, CATENA_SI1133_MODE_White);
@@ -131,7 +131,7 @@ void setup()
     else
         {
         gCatena.SafePrintf("No Si1133 found: check hardware\n");
-        }
+        }*/
     }
 
 /*
@@ -152,8 +152,9 @@ Returns:
 
 void loop()
     {
+    gCatena.poll();
     /* Get a new sensor event */
-    uint16_t data[3];
+    /*uint16_t data[3];
 
     while (! gSi1133.isOneTimeReady())
         {
@@ -167,7 +168,7 @@ void loop()
         data[0],
         data[1],
         data[2]
-        );
+        );*/
 
     if (gfTxStarted && gfTxDone)
         {
