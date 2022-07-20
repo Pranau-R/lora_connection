@@ -50,7 +50,7 @@ Catena gCatena;
 //   The LUX sensor
 //Catena_Si1133 gSi1133;
 
-uint8_t uplinkBuffer[] = { 0xCA, 0xFE, 0xBA, 0xBE };
+uint8_t uplinkBuffer = 0xCA;
 
 /****************************************************************************\
 |
@@ -114,10 +114,17 @@ Returns:
 
 void loop()
     {
+    gCatena.SafePrintf("Before Transfer!\n");
     // send packet
     LoRa.beginPacket();
 
+    gCatena.SafePrintf("Before write!\n");
+    LoRa.write(uplinkBuffer);
+    gCatena.SafePrintf("After write!\n");
+
+    gCatena.SafePrintf("Before print!\n");
     LoRa.print(uplinkBuffer);
+    gCatena.SafePrintf("After print!\n");
 
     LoRa.endPacket();
 
