@@ -100,8 +100,7 @@ void setup()
 Name:   loop()
 
 Function:
-        Performs different light calculation such as
-        Infrared Light, White Light and UV Light.
+        Sends the data in a packet.
 
 Definition:
         void loop (

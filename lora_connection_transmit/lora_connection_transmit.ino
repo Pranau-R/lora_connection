@@ -67,7 +67,7 @@ uint8_t uplinkBuffer[] = { 0xCA, 0xFE, 0xBA, 0xBE };
 Name: setup()
 
 Function:
-        Initializes Si1133 Light Sensor
+        Initializes LoRa for Sender.
 
 Definition:
         void setup (
@@ -121,25 +121,13 @@ void setup()
             gCatena.SafePrintf("SendBuffer failed!\n");
             }
         }
-
-    /*if (gSi1133.begin())
-        {
-        gSi1133.configure(0, CATENA_SI1133_MODE_SmallIR);
-        gSi1133.configure(1, CATENA_SI1133_MODE_White);
-        gSi1133.configure(2, CATENA_SI1133_MODE_UV);
-        }
-    else
-        {
-        gCatena.SafePrintf("No Si1133 found: check hardware\n");
-        }*/
     }
 
 /*
 Name:   loop()
 
 Function:
-        Performs different light calculation such as
-        Infrared Light, White Light, UV Light.
+        Transmit the data to receiver.
 
 Definition:
         void loop (
@@ -153,22 +141,6 @@ Returns:
 void loop()
     {
     gCatena.poll();
-    /* Get a new sensor event */
-    /*uint16_t data[3];
-
-    while (! gSi1133.isOneTimeReady())
-        {
-        yield();
-        }
-
-    gSi1133.readMultiChannelData(data, 3);
-    gSi1133.stop();
-    gCatena.SafePrintf(
-        "Si1133:  %u IR, %u White, %u UV\n",
-        data[0],
-        data[1],
-        data[2]
-        );*/
 
     if (gfTxStarted && gfTxDone)
         {

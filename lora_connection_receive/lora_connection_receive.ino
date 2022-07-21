@@ -20,6 +20,7 @@ Author:
 
 #include <Catena.h>
 #include <Arduino_LoRaWAN.h>
+#include <lmic.h>
 
 
 /****************************************************************************\
@@ -46,7 +47,7 @@ Catena gCatena;
 Catena::LoRaWAN gLoRaWAN;
 
 // declare the callback function.
-Arduino_LoRaWAN::ReceivePortBufferCbFn receiveDone;
+static Arduino_LoRaWAN::ReceivePortBufferCbFn receiveMessage;
 
 uint8_t receiveBuffer[4];
 
@@ -60,7 +61,7 @@ uint8_t receiveBuffer[4];
 Name: setup()
 
 Function:
-        Initializes Si1133 Light Sensor
+        Initializes Lora for Receiver.
 
 Definition:
         void setup (
@@ -76,7 +77,6 @@ void setup()
     Serial.begin(115200);
 
     while (!Serial);
-    //gCatena.SafePrintf("Si1133 LoRa Connectivity Test!\n");
     gCatena.SafePrintf("This is Receiver!\n");
 
     char sRegion[16];
@@ -84,6 +84,8 @@ void setup()
         gLoRaWAN.GetNetworkName(),
         gLoRaWAN.GetRegionString(sRegion, sizeof(sRegion))
         );
+
+    gLoRaWAN.SetReceiveBufferBufferCb(receiveMessage);
 
     // set up LoRaWAN
     gCatena.SafePrintf("LoRaWAN init: ");
@@ -99,19 +101,53 @@ void setup()
     gCatena.registerObject(&gLoRaWAN);
     }
 
-    if (! gLoRaWAN.IsProvisioned())
+    /*if (! gLoRaWAN.IsProvisioned())
         {
         gCatena.SafePrintf("LoRaWAN not provisioned yet. Use the commands to set it up.\n");
         }
     else
         {
-        // send a confirmed uplink
         if (gLoRaWAN.ReceivePortBufferCbFn(nullptr, 16, receiveBuffer, sizeof(receiveBuffer)))
             {
-            gfTxStarted = true;
+            gfRxDone = true;
             }
         else
             {
-            gCatena.SafePrintf("SendBuffer failed!\n");
+            gCatena.SafePrintf("ReceiveBuffer failed!\n");
             }
+        }*/
+
+/*Name:   loop()
+
+Function:
+        Receive the data from the server.
+
+Definition:
+        void loop (
+            void
+            );
+
+Returns:
+        Functions returning type void: nothing.
+*/
+
+void loop()
+    {
+    gCatena.poll();
+    }
+
+//void receiveMessage(receiveBuffer);
+
+void receiveMessage(void *nullptr,
+    uint8_t port,
+    *receiveBuffer,
+    sizeof(receiveBuffer))
+    {
+    int i= 0;
+
+    //uint8_t Data [4] = receiveBuffer;
+    for (i = 0; i <= sizeof(receiveBuffer); i++)
+        {
+        gCatena.SafePrintf("The Data %d is: %u", i, receiveBuffer[i]);
         }
+    }
