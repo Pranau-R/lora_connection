@@ -47,9 +47,9 @@ Catena gCatena;
 Catena::LoRaWAN gLoRaWAN;
 
 // declare the callback function.
-static Arduino_LoRaWAN::ReceivePortBufferCbFn receiveMessage;
+Arduino_LoRaWAN::ReceivePortBufferCbFn receiveMessage;
 
-uint8_t receiveBuffer[4];
+//uint8_t receiveBuffer[4];
 
 /****************************************************************************\
 |
@@ -74,6 +74,8 @@ Returns:
 
 void setup()
     {
+    gCatena.begin();
+
     Serial.begin(115200);
 
     while (!Serial);
@@ -99,23 +101,15 @@ void setup()
         }
 
     gCatena.registerObject(&gLoRaWAN);
-    }
-
-    /*if (! gLoRaWAN.IsProvisioned())
+    if (! gLoRaWAN.IsProvisioned())
         {
         gCatena.SafePrintf("LoRaWAN not provisioned yet. Use the commands to set it up.\n");
         }
     else
         {
-        if (gLoRaWAN.ReceivePortBufferCbFn(nullptr, 16, receiveBuffer, sizeof(receiveBuffer)))
-            {
-            gfRxDone = true;
-            }
-        else
-            {
-            gCatena.SafePrintf("ReceiveBuffer failed!\n");
-            }
-        }*/
+        gCatena.SafePrintf("LoRaWAN is provisioned!.\n");
+        }
+    }
 
 /*Name:   loop()
 
@@ -136,17 +130,15 @@ void loop()
     gCatena.poll();
     }
 
-//void receiveMessage(receiveBuffer);
-
-void receiveMessage(void *nullptr,
+void receiveMessage(
+    void *pContext,
     uint8_t port,
-    *receiveBuffer,
-    sizeof(receiveBuffer))
+    const uint8_t *receiveBuffer,
+    size_t nBuffer)
     {
-    int i= 0;
+    nBuffer = sizeof(receiveBuffer);
 
-    //uint8_t Data [4] = receiveBuffer;
-    for (i = 0; i <= sizeof(receiveBuffer); i++)
+    for (int i = 0; i <= sizeof(receiveBuffer); i++)
         {
         gCatena.SafePrintf("The Data %d is: %u", i, receiveBuffer[i]);
         }
