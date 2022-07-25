@@ -108,6 +108,7 @@ void setup()
     else
         {
         gCatena.SafePrintf("LoRaWAN is provisioned!.\n");
+        //gLoRaWAN.SetReceiveBufferBufferCb(receiveMessage, nullptr);
         }
     }
 
